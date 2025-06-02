@@ -4,12 +4,12 @@
 // 🤟(ILoveYou)
 function getCode(left_gesture, right_gesture) {
   let code_array = {
-    "Thumb_Up": 1,
-    "Thumb_Down": 2,
-    "Victory": 3,
-    "Pointing_Up": 4,
-    "Closed_Fist": 5,
-    "Open_Palm": 6,
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "zero": 6,
   }
   let left_code = code_array[left_gesture];
   let right_code = code_array[right_gesture];
@@ -20,11 +20,12 @@ function getCode(left_gesture, right_gesture) {
 
 function getCharacter(code) {
   const codeToChar = {
-    "11": "a", "12": "b", "13": "c", "14": "d", "15": "e", "16": "f",
-    "21": "g", "22": "h", "23": "i", "24": "j", "25": "k", "26": "l",
-    "31": "m", "32": "n", "33": "o", "34": "p", "35": "q", "36": "r",
-    "41": "s", "42": "t", "43": "u", "44": "v", "45": "w", "46": "x",
-    "51": "y", "52": "z", "53": " ", "54": "backspace"
+    "11": "a", "12": "b", "13": "c", "14": "d", "15": "e", 
+    "21": "f", "22": "g", "23": "h", "24": "i", "25": "j",
+    "31": "k", "32": "l", "33": "m", "34": "n", "35": "o",
+    "41": "p", "42": "q", "43": "r", "44": "s", "45": "t",
+    "51": "u", "52": "v", "53": "w", "54": "x", "55": "y",
+    "61": "z", "65": "backspace", "66": " "
   };
   return codeToChar[code] || "";
 }
@@ -66,6 +67,7 @@ function setup() {
         // ゲーム開始前の状態から、カメラが起動した後の状態に変化した場合
         game_mode.previous = game_mode.now;
         game_mode.now = "playing";
+        game_start_time = millis();
         document.querySelector('input').value = ""; // 入力欄をクリア
         game_start_time = millis(); // ゲーム開始時間を記録
       }
@@ -93,6 +95,17 @@ function setup() {
         lastCharTime = now;
       }
     }
+  }
+  function tyoeAssist(){
+    //sample_textsを１文字ずつList化して、target_textに格納する
+    let target_text = sample_texts[0].split("");
+    // target_textの最初の文字をモニターに表示する
+    if (target_text.length > 0) {
+      document.querySelector('#message').innerText = target_text.join("");
+    } else {
+      document.querySelector('#message').innerText = "No text available";
+    }
+    
 
   }
 }
