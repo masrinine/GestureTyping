@@ -25,7 +25,7 @@ function getCharacter(code) {
     "31": "k", "32": "l", "33": "m", "34": "n", "35": "o",
     "41": "p", "42": "q", "43": "r", "44": "s", "45": "t",
     "51": "u", "52": "v", "53": "w", "54": "x", "55": "y",
-    "61": "z", "65": "backspace", "66": " "
+    "61": "z", "65": "backspace", "66": " ", "56": "backspace"
   };
   return codeToChar[code] || "";
 }
@@ -85,7 +85,7 @@ function setup() {
 
       let now = millis();
       if (c === lastChar) {
-        if (now - lastCharTime > 1000) {
+        if (now - lastCharTime > 300) {
           // 1秒以上cが同じ値である場合の処理
           typeChar(c);
           lastCharTime = now;
@@ -108,6 +108,66 @@ function setup() {
     
 
   }
+  // --- ここから追加: 補助表示用DIVと入力監視 ---
+  // createDiv で #message の上に補助表示エリアを重ねる
+  const assistDiv = createDiv('').parent('#canvas')
+    .style('position','absolute')
+    .style('bottom','3em')
+    .style('left','50%')
+    .style('transform','translateX(-50%)')
+    .style('padding','0.5em 1em')
+    .style('background','rgba(255,255,255,0.8)')
+    .style('font-size','1.2em')
+    .style('font-weight','bold');
+  // 文字→コードのマッピング
+  const codeMap = {
+    "a":"11","b":"12","c":"13","d":"14","e":"15",
+    "f":"21","g":"22","h":"23","i":"24","j":"25",
+    "k":"31","l":"32","m":"33","n":"34","o":"35",
+    "p":"41","q":"42","r":"43","s":"44","t":"45",
+    "u":"51","v":"52","w":"53","x":"54","y":"55",
+    "z":"01","backspace":"05"," ":"00"
+  };
+  let prevVal = '';
+  let mismatchFlag = false;
+  function updateAssist() {
+    const val = document.querySelector('input').value;
+    let text = '';
+    try {
+      const tgt = sample_texts[0].split('');
+      const idx = val.length;
+      // 既にミスマッチ表示中はバックスペース入力を待つ
+      if (mismatchFlag) {
+        // バックスペースが押されたらミスマッチ解除
+        if (prevVal.length > val.length) {
+          mismatchFlag = false;
+        } else {
+          text = `backspace (${codeMap['backspace']})`;
+          assistDiv.html(text);
+          prevVal = val;
+          return;
+        }
+      }
+      // 新規入力で期待文字と異なる場合はミスマッチ表示開始
+      if (val.length > prevVal.length && idx - 1 < tgt.length && val[idx - 1] !== tgt[idx - 1]) {
+        mismatchFlag = true;
+        text = `backspace (${codeMap['backspace']})`;
+      }
+      // 通常は次に入力すべき文字とコードを表示
+      else if (!mismatchFlag && idx < tgt.length) {
+        const ch = tgt[idx];
+        text = `${ch} (${codeMap[ch]||''})`;
+      }
+    } catch (e) {}
+    assistDiv.html(text);
+    prevVal = val;
+  }
+  // 初期表示とリアルタイム更新
+  const inp = document.querySelector('input');
+  inp.addEventListener('input', updateAssist);
+  updateAssist();
+  setInterval(updateAssist, 100);
+  // --- ここまで追加 ---
 }
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
